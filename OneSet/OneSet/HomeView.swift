@@ -13,6 +13,7 @@ struct HomeView: View {
           if let cycle = WorkoutPlan.focusCycle(containing: todayDayKey) {
             FocusCycleView(cycle: cycle, progress: cycleProgress)
           }
+          Spacer(minLength: 12)
 
           HStack(alignment: .top, spacing: 12) {
             NavigationLink {
@@ -44,17 +45,23 @@ struct HomeView: View {
             .frame(maxWidth: .infinity)
           }
           .buttonStyle(.plain)
+          Spacer(minLength: 12)
 
           Text("Exercises")
             .font(.title2.bold())
             .padding(.top, 8)
 
-          ForEach(ExerciseForm.allCases) { form in
-            FormSummaryCard(
-              form: form,
-              lastPerformance: workoutHistory.lastPerformance(for: form),
-              maximumPerformance: workoutHistory.maximumPerformance(for: form)
-            )
+          LazyVGrid(
+            columns: [GridItem(.flexible()), GridItem(.flexible())],
+            spacing: 12
+          ) {
+            ForEach(ExerciseForm.allCases) { form in
+              FormSummaryCard(
+                form: form,
+                lastPerformance: workoutHistory.lastPerformance(for: form),
+                maximumPerformance: workoutHistory.maximumPerformance(for: form)
+              )
+            }
           }
         }
         .padding()
@@ -158,35 +165,34 @@ private struct FormSummaryCard: View {
 
   var body: some View {
     GroupBox {
-      if let lastPerformance, let maximumPerformance {
-        VStack(spacing: 12) {
+      VStack(alignment: .leading) {
+        Text(form.displayName)
+          .font(.headline)
+        Text(form.muscleGroup.displayName)
+          .font(.subheadline)
+        Spacer(minLength: 12)
+        if let lastPerformance, let maximumPerformance {
           performanceRow(title: "Last", performedSet: lastPerformance)
           Divider()
           performanceRow(title: "Max", performedSet: maximumPerformance)
+        } else {
+          Text("No workouts yet")
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-      } else {
-        Text("No workouts yet")
-          .foregroundStyle(.secondary)
-          .frame(maxWidth: .infinity, alignment: .leading)
       }
-    } label: {
-      Text(form.displayName)
-        .font(.headline)
     }
     .frame(maxWidth: .infinity)
   }
 
   private func performanceRow(title: String, performedSet: PerformedSet) -> some View {
-    HStack(alignment: .firstTextBaseline) {
+    VStack(alignment: .leading) {
       Text(title)
         .foregroundStyle(.secondary)
-      Spacer()
-      VStack(alignment: .trailing, spacing: 2) {
-        Text("\(performedSet.reps) reps at \(performedSet.weightKg) kg")
-        Text(formattedDate(performedSet.workout.dayKey))
-          .font(.caption)
-          .foregroundStyle(.secondary)
-      }
+      Text("\(performedSet.reps) x \(performedSet.weightKg) kg")
+      Text(formattedDate(performedSet.workout.dayKey))
+        .font(.caption)
+        .foregroundStyle(.secondary)
     }
   }
 }
