@@ -6,7 +6,7 @@
 - [x] Install dev tools
 - [x] Add repo on github
 - [x] Create blank Xcode project
-- [ ] Fix app target to only iOS
+- [x] Fix app target to only iOS
 
 ## Models
 
@@ -16,4 +16,3 @@
 - [ ] Implement computed model logic and mappings
 - [ ] Unit-test models
 - [ ] Integrate Models package in app project
-
