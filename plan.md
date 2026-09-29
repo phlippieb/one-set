@@ -39,6 +39,7 @@
 - [x] Add notes box
 - [x] Add delete and save buttons
 - [x] Implement delete and save functionality
+- [x] Prevent cascaded workout deletion from crashing retained views
 - [x] Move Delete into an overflow menu beside Save in Edit mode
 - [x] Factor out the exercise row into a private view
 - [x] Show each exercise in a separate card

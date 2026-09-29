@@ -46,10 +46,15 @@ public struct WorkoutHistory {
 
   public func maximumPerformance(for form: ExerciseForm) -> PerformedSet? {
     workouts
-      .flatMap(\.performedSets)
-      .filter { $0.form == form }
+      .flatMap { workout in
+        workout.performedSets.map { performedSet in
+          (performedSet: performedSet, dayKey: workout.dayKey)
+        }
+      }
+      .filter { $0.performedSet.form == form }
       .sorted(by: isHigherPerformance)
-      .first
+      .first?
+      .performedSet
   }
 
   public func isMaximumPerformance(_ performedSet: PerformedSet) -> Bool {
@@ -171,14 +176,17 @@ public struct WorkoutHistory {
     return forms[(index + 1) % forms.count]
   }
 
-  private func isHigherPerformance(_ lhs: PerformedSet, _ rhs: PerformedSet) -> Bool {
-    if lhs.weightKg != rhs.weightKg {
-      return lhs.weightKg > rhs.weightKg
+  private func isHigherPerformance(
+    _ lhs: (performedSet: PerformedSet, dayKey: String),
+    _ rhs: (performedSet: PerformedSet, dayKey: String)
+  ) -> Bool {
+    if lhs.performedSet.weightKg != rhs.performedSet.weightKg {
+      return lhs.performedSet.weightKg > rhs.performedSet.weightKg
     }
-    if lhs.reps != rhs.reps {
-      return lhs.reps > rhs.reps
+    if lhs.performedSet.reps != rhs.performedSet.reps {
+      return lhs.performedSet.reps > rhs.performedSet.reps
     }
-    return lhs.workout.dayKey > rhs.workout.dayKey
+    return lhs.dayKey > rhs.dayKey
   }
 
   private func defaultValues(for form: ExerciseForm) -> PerformedSetValues {

@@ -194,9 +194,11 @@ private struct FormSummaryCard: View {
       Text(title)
         .foregroundStyle(.secondary)
       Text("\(performedSet.reps) x \(performedSet.weightKg) kg")
-      Text(WorkoutDateDisplay.relative(performedSet.workout.dayKey))
-        .font(.caption)
-        .foregroundStyle(.secondary)
+      if let workout = performedSet.workout {
+        Text(WorkoutDateDisplay.relative(workout.dayKey))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
     }
   }
 }

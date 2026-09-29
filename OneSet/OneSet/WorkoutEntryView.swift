@@ -367,11 +367,12 @@ private struct WorkoutExerciseRow: View {
   private var shouldShowProgressControl: Bool {
     guard isFocused else { return false }
     guard !isAddMode,
-          let latestPerformance = history.lastPerformance(for: exercise.form)
+          let latestPerformance = history.lastPerformance(for: exercise.form),
+          let latestWorkout = latestPerformance.workout
             else {
       return true
     }
-    return latestPerformance.workout.dayKey <= dayKey
+    return latestWorkout.dayKey <= dayKey
   }
 }
 

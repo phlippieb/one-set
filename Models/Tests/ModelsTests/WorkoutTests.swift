@@ -53,9 +53,11 @@ func workoutPersistence() throws {
     #expect(Set(savedSets.map(\.form)) == [.curls, .skullCrushers, .lateralRaises])
     #expect(savedSets.first(where: { $0.form == .skullCrushers })?.shouldRepeat == true)
 
+    let retainedSet = savedSets[0]
     context.delete(workout)
     try context.save()
 
+    #expect(retainedSet.workout == nil)
     #expect(try context.fetchCount(FetchDescriptor<Workout>()) == 0)
     #expect(try context.fetchCount(FetchDescriptor<PerformedSet>()) == 0)
 }

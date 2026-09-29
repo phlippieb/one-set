@@ -8,12 +8,8 @@ public final class PerformedSet {
   public var shouldRepeat: Bool
   private(set) var workoutRelationship: Workout?
 
-  public var workout: Workout {
-    guard let workoutRelationship else {
-      preconditionFailure("A performed set must belong to a workout")
-    }
-    return workoutRelationship
-  }
+  // SwiftData clears the inverse before retained references disappear during cascade deletion.
+  public var workout: Workout? { workoutRelationship }
   
   public var form: ExerciseForm {
     // All writes pass through typed, validated APIs.
@@ -29,8 +25,11 @@ public final class PerformedSet {
   }
   
   public func update(with input: PerformedSetInput) throws(ModelValidationError) {
+    guard let workoutRelationship else {
+      preconditionFailure("A deleted performed set cannot be updated")
+    }
     if input.form.muscleGroup != form.muscleGroup,
-       workout.performedSets.contains(where: {
+       workoutRelationship.performedSets.contains(where: {
          $0 !== self && $0.form.muscleGroup == input.form.muscleGroup
        }) {
       throw .duplicateMuscleGroup(input.form.muscleGroup)
