@@ -127,7 +127,7 @@ UI elements:
     - Reps, with +/- buttons that increment by 1
       - In Add mode, pre-fill with the last recorded reps.
     - "Repeat" toggle, always false initially in Add mode
-      - Show in Add mode and when editing the selected form's most recent entry; hide it when a later entry for that form exists.
+      - Show only for the focused muscle group, in Add mode or when editing the selected form's most recent entry; hide it when a later entry for that form exists.
     - In Add mode, target recommendation:
       - In maintenance mode, recommend the previous entry's values.
       - Else if the previous entry has "Repeat" toggled, recommend the same values.

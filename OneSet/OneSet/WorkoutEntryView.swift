@@ -58,7 +58,8 @@ struct WorkoutEntryView: View {
             exercise: $exercises[index],
             history: history,
             dayKey: dayKey,
-            isAddMode: workout == nil
+            isAddMode: workout == nil,
+            isFocused: index == exercises.startIndex
           )
         } header: {
           if index == exercises.startIndex {
@@ -189,12 +190,21 @@ private struct WorkoutExerciseRow: View {
   let history: WorkoutHistory
   let dayKey: String
   let isAddMode: Bool
+  let isFocused: Bool
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       HStack {
         Text(exercise.muscleGroup.displayName)
           .font(.headline)
+        if isFocused {
+          Text("Focus")
+            .font(.caption2.bold())
+            .foregroundStyle(.tint)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.tint.opacity(0.12), in: Capsule())
+        }
         Spacer()
         CircleToggle(title: "Skipped", isOn: skippedBinding)
           .fixedSize()
@@ -248,8 +258,9 @@ private struct WorkoutExerciseRow: View {
         )
 
         if shouldShowRepeatControl {
-          CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
-            .frame(maxWidth: .infinity, alignment: .trailing)
+          LabeledContent("Ready to progress") {
+            CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
+          }
 
           if exercise.shouldRepeat {
             Text("Recommend the same weight and reps next time.")
@@ -303,6 +314,7 @@ private struct WorkoutExerciseRow: View {
   }
 
   private var shouldShowRepeatControl: Bool {
+    guard isFocused else { return false }
     guard !isAddMode,
           let latestPerformance = history.lastPerformance(for: exercise.form)
             else {
