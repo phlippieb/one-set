@@ -39,4 +39,14 @@
 - [x] Add notes box
 - [x] Add delete and save buttons
 - [x] Implement delete and save functionality
-- [ ] Tweak UI
+- [x] Factor out the exercise row into a private view
+- [ ] Show each exercise in a separate card
+- [ ] Add custom toggle UI for skipped and repeat
+- [ ] Show hint text when repeat is enabled
+- [ ] Show hint text when an exercise is skipped
+- [ ] Add consistent decrement and increment controls for weights and reps with strict alignment
+- [ ] Keep Save visible and disable it when there are no changes to save
+- [ ] Present Workout Detail modally and allow dismissing unsaved changes without confirmation
+- [ ] Support pull-down dismissal
+- [ ] Consider sticky action buttons
+- [ ] Consider replacing Delete with Dismiss in add mode

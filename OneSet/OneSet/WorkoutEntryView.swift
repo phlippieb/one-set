@@ -54,70 +54,12 @@ struct WorkoutEntryView: View {
     Form {
       Section("Exercises") {
         ForEach(exercises.indices, id: \.self) { index in
-          VStack(alignment: .leading, spacing: 12) {
-            HStack {
-              Text(exercises[index].muscleGroup.displayName)
-                .font(.headline)
-              Spacer()
-              Toggle("Skipped", isOn: skippedBinding(at: index))
-                .fixedSize()
-            }
-
-            if !exercises[index].isSkipped {
-              Picker("Form", selection: formBinding(at: index)) {
-                ForEach(exercises[index].muscleGroup.forms) { form in
-                  Text(form.displayName).tag(form)
-                }
-              }
-
-              LabeledContent("Weight") {
-                HStack(spacing: 12) {
-                  Button {
-                    adjustWeight(at: index, by: -1)
-                  } label: {
-                    Image(systemName: "minus")
-                  }
-                  .buttonStyle(.bordered)
-                  .disabled(!canAdjustWeight(at: index, by: -1))
-                  .accessibilityLabel("Decrease weight")
-
-                  Text("\(exercises[index].weightKg) kg")
-                    .monospacedDigit()
-                    .frame(minWidth: 44)
-
-                  Button {
-                    adjustWeight(at: index, by: 1)
-                  } label: {
-                    Image(systemName: "plus")
-                  }
-                  .buttonStyle(.bordered)
-                  .disabled(!canAdjustWeight(at: index, by: 1))
-                  .accessibilityLabel("Increase weight")
-                }
-              }
-
-              Stepper(
-                "Reps: \(exercises[index].reps)",
-                value: $exercises[index].reps,
-                in: 1...Int.max
-              )
-
-              Toggle("Repeat", isOn: $exercises[index].shouldRepeat)
-
-              if workout == nil {
-                let recommendation = history.recommendation(
-                  for: exercises[index].form,
-                  on: dayKey
-                )
-                LabeledContent(
-                  "Target",
-                  value: "\(recommendation.reps) x \(recommendation.weightKg) kg"
-                )
-                .foregroundStyle(.secondary)
-              }
-            }
-          }
-          .padding(.vertical, 4)
+          WorkoutExerciseRow(
+            exercise: $exercises[index],
+            history: history,
+            dayKey: dayKey,
+            isAddMode: workout == nil
+          )
         }
       }
 
@@ -236,49 +178,121 @@ struct WorkoutEntryView: View {
     }
   }
 
-  private func skippedBinding(at index: Int) -> Binding<Bool> {
-    Binding {
-      exercises[index].isSkipped
-    } set: { isSkipped in
-      exercises[index].isSkipped = isSkipped
-      guard !isSkipped, !exercises[index].hasInitializedValues else { return }
+}
 
-      let muscleGroup = exercises[index].muscleGroup
+private struct WorkoutExerciseRow: View {
+  @Binding var exercise: ExerciseState
+  let history: WorkoutHistory
+  let dayKey: String
+  let isAddMode: Bool
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Text(exercise.muscleGroup.displayName)
+          .font(.headline)
+        Spacer()
+        Toggle("Skipped", isOn: skippedBinding)
+          .fixedSize()
+      }
+
+      if !exercise.isSkipped {
+        Picker("Form", selection: formBinding) {
+          ForEach(exercise.muscleGroup.forms) { form in
+            Text(form.displayName).tag(form)
+          }
+        }
+
+        LabeledContent("Weight") {
+          HStack(spacing: 12) {
+            Button {
+              adjustWeight(by: -1)
+            } label: {
+              Image(systemName: "minus")
+            }
+            .buttonStyle(.bordered)
+            .disabled(!canAdjustWeight(by: -1))
+            .accessibilityLabel("Decrease weight")
+
+            Text("\(exercise.weightKg) kg")
+              .monospacedDigit()
+              .frame(minWidth: 44)
+
+            Button {
+              adjustWeight(by: 1)
+            } label: {
+              Image(systemName: "plus")
+            }
+            .buttonStyle(.bordered)
+            .disabled(!canAdjustWeight(by: 1))
+            .accessibilityLabel("Increase weight")
+          }
+        }
+
+        Stepper(
+          "Reps: \(exercise.reps)",
+          value: $exercise.reps,
+          in: 1...Int.max
+        )
+
+        Toggle("Repeat", isOn: $exercise.shouldRepeat)
+
+        if isAddMode {
+          let recommendation = history.recommendation(for: exercise.form, on: dayKey)
+          LabeledContent(
+            "Target",
+            value: "\(recommendation.reps) x \(recommendation.weightKg) kg"
+          )
+          .foregroundStyle(.secondary)
+        }
+      }
+    }
+    .padding(.vertical, 4)
+  }
+
+  private var skippedBinding: Binding<Bool> {
+    Binding {
+      exercise.isSkipped
+    } set: { isSkipped in
+      exercise.isSkipped = isSkipped
+      guard !isSkipped, !exercise.hasInitializedValues else { return }
+
+      let muscleGroup = exercise.muscleGroup
       let form = history.nextForm(for: muscleGroup, before: dayKey)
       let values = history.prefill(for: form, before: dayKey)
-      exercises[index].form = form
-      exercises[index].weightKg = values.weightKg
-      exercises[index].reps = values.reps
-      exercises[index].shouldRepeat = false
-      exercises[index].hasInitializedValues = true
+      exercise.form = form
+      exercise.weightKg = values.weightKg
+      exercise.reps = values.reps
+      exercise.shouldRepeat = false
+      exercise.hasInitializedValues = true
     }
   }
 
-  private func formBinding(at index: Int) -> Binding<ExerciseForm> {
+  private var formBinding: Binding<ExerciseForm> {
     Binding {
-      exercises[index].form
+      exercise.form
     } set: { form in
-      exercises[index].form = form
-      guard workout == nil else { return }
+      exercise.form = form
+      guard isAddMode else { return }
 
       let values = history.prefill(for: form)
-      exercises[index].weightKg = values.weightKg
-      exercises[index].reps = values.reps
+      exercise.weightKg = values.weightKg
+      exercise.reps = values.reps
     }
   }
 
-  private func canAdjustWeight(at index: Int, by offset: Int) -> Bool {
+  private func canAdjustWeight(by offset: Int) -> Bool {
     guard let weightIndex = WorkoutPlan.availableWeightsKg.firstIndex(
-      of: exercises[index].weightKg
+      of: exercise.weightKg
     ) else {
       return false
     }
     return WorkoutPlan.availableWeightsKg.indices.contains(weightIndex + offset)
   }
 
-  private func adjustWeight(at index: Int, by offset: Int) {
+  private func adjustWeight(by offset: Int) {
     guard let weightIndex = WorkoutPlan.availableWeightsKg.firstIndex(
-      of: exercises[index].weightKg
+      of: exercise.weightKg
     ) else {
       return
     }
@@ -286,7 +300,7 @@ struct WorkoutEntryView: View {
     guard WorkoutPlan.availableWeightsKg.indices.contains(nextIndex) else {
       return
     }
-    exercises[index].weightKg = WorkoutPlan.availableWeightsKg[nextIndex]
+    exercise.weightKg = WorkoutPlan.availableWeightsKg[nextIndex]
   }
 }
 
