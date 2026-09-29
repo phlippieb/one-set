@@ -57,4 +57,29 @@ public enum WorkoutDayKey {
   public static func isValid(_ dayKey: String) -> Bool {
     dateComponents(from: dayKey) != nil
   }
+
+  public static func adding(days: Int, to dayKey: String) -> String? {
+    guard let components = dateComponents(from: dayKey),
+          let calendar = components.calendar,
+          let date = calendar.date(from: components),
+          let result = calendar.date(byAdding: .day, value: days, to: date)
+            else {
+      return nil
+    }
+
+    return today(now: result, timeZone: calendar.timeZone)
+  }
+
+  public static func days(from startDayKey: String, to endDayKey: String) -> Int? {
+    guard let startComponents = dateComponents(from: startDayKey),
+          let endComponents = dateComponents(from: endDayKey),
+          let calendar = startComponents.calendar,
+          let start = calendar.date(from: startComponents),
+          let end = calendar.date(from: endComponents)
+            else {
+      return nil
+    }
+
+    return calendar.dateComponents([.day], from: start, to: end).day
+  }
 }

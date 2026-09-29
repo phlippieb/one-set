@@ -13,6 +13,6 @@
 - [x] Define (in spec) data models
 - [x] Create Models Swift package
 - [x] Implement persisted models
-- [ ] Implement computed model logic and mappings
+- [x] Implement computed model logic and mappings
 - [x] Unit-test models
 - [x] Integrate Models package in app project

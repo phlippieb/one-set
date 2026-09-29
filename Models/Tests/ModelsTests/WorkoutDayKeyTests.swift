@@ -13,3 +13,13 @@ func dayKeys() {
     #expect(!WorkoutDayKey.isValid("2023-02-29"))
     #expect(!WorkoutDayKey.isValid("2026-9-21"))
 }
+
+@Test("Day-key arithmetic uses civil Gregorian days")
+func dayKeyArithmetic() {
+    #expect(WorkoutDayKey.adding(days: 1, to: "2024-02-28") == "2024-02-29")
+    #expect(WorkoutDayKey.adding(days: -1, to: "2027-01-01") == "2026-12-31")
+    #expect(WorkoutDayKey.days(from: "2024-02-28", to: "2024-03-01") == 2)
+    #expect(WorkoutDayKey.days(from: "2024-03-01", to: "2024-02-28") == -2)
+    #expect(WorkoutDayKey.adding(days: 1, to: "2026-9-21") == nil)
+    #expect(WorkoutDayKey.days(from: "invalid", to: "2026-09-21") == nil)
+}

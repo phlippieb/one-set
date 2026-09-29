@@ -1,4 +1,5 @@
 public enum ModelValidationError: Error, Equatable, Sendable {
+  case invalidDayKey(String)
   case workoutRequiresPerformedSet
   case tooManyPerformedSets
   case duplicateMuscleGroup(MuscleGroup)
