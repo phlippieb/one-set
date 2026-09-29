@@ -36,7 +36,7 @@
 - [x] Render workout date as title using human-friendly format
 - [x] Render basic exercises lists - title and skipped toggle
 - [x] Render exercises with edit controls
-- [ ] Add notes box
+- [x] Add notes box
 - [ ] Add delete and save buttons
 - [ ] Implement delete and save functionality
 - [ ] Tweak UI

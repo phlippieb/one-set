@@ -8,6 +8,7 @@ struct WorkoutEntryView: View {
   let workout: Workout?
   @State private var exercises: [ExerciseState]
   @State private var didInitializeAddMode: Bool
+  @State private var notes: String
 
   init(workout: Workout? = nil) {
     self.workout = workout
@@ -42,6 +43,7 @@ struct WorkoutEntryView: View {
       }
     )
     self._didInitializeAddMode = State(initialValue: workout != nil)
+    self._notes = State(initialValue: workout?.notes ?? "")
   }
 
   var body: some View {
@@ -113,6 +115,12 @@ struct WorkoutEntryView: View {
           }
           .padding(.vertical, 4)
         }
+      }
+
+      Section("Notes") {
+        TextEditor(text: $notes)
+          .frame(minHeight: 120)
+          .accessibilityLabel("Notes")
       }
     }
     .navigationTitle(
