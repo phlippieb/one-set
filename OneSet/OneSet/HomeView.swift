@@ -11,30 +11,7 @@ struct HomeView: View {
       ScrollView {
         LazyVStack(alignment: .leading, spacing: 16) {
           if let cycle = WorkoutPlan.focusCycle(containing: todayDayKey) {
-            VStack(alignment: .leading, spacing: 16) {
-              HStack(alignment: .lastTextBaseline) {
-                Text("\(cycle.focusedGroup.displayName) Focus")
-                  .font(.title.bold())
-                if let startDayComponents = WorkoutDayKey.dateComponents(from: cycle.startDayKey),
-                  let endDayComponents = WorkoutDayKey.dateComponents(from: cycle.endDayKey),
-                  let startDay = startDayComponents.calendar?.date(from: startDayComponents),
-                  let endDay = endDayComponents.calendar?.date(from: endDayComponents)
-                {
-                  Text(formattedDateRange(from: startDay, to: endDay))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                  Spacer()
-                }
-              }
-
-              HStack(spacing: 0) {
-                ForEach(cycleProgress) { day in
-                  FocusCycleDayView(day: day)
-                    .frame(maxWidth: .infinity)
-                }
-              }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            FocusCycleView(cycle: cycle, progress: cycleProgress)
           }
 
           HStack(alignment: .top, spacing: 12) {
@@ -100,6 +77,38 @@ struct HomeView: View {
 
   private var isTodayLogged: Bool {
     workouts.contains { $0.dayKey == todayDayKey }
+  }
+}
+
+private struct FocusCycleView: View {
+  let cycle: FocusCycle
+  let progress: [FocusCycle.Day]
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 16) {
+      HStack(alignment: .lastTextBaseline) {
+        Text("\(cycle.focusedGroup.displayName) Focus")
+          .font(.title.bold())
+        if let startDayComponents = WorkoutDayKey.dateComponents(from: cycle.startDayKey),
+          let endDayComponents = WorkoutDayKey.dateComponents(from: cycle.endDayKey),
+          let startDay = startDayComponents.calendar?.date(from: startDayComponents),
+          let endDay = endDayComponents.calendar?.date(from: endDayComponents)
+        {
+          Text(formattedDateRange(from: startDay, to: endDay))
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+          Spacer()
+        }
+      }
+
+      HStack(spacing: 0) {
+        ForEach(progress) { day in
+          FocusCycleDayView(day: day)
+            .frame(maxWidth: .infinity)
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 }
 
