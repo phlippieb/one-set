@@ -26,3 +26,6 @@ xcuserdata/
 
 # Swift Package Manager build output
 .build/
+
+# Swift Package Manager generated Xcode workspace
+**/.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
