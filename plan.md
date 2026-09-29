@@ -30,3 +30,13 @@
 - [x] Group list by cycle, e.g. "Biceps focus (start date - end date)" - similar to the home screen
 - [x] Render remaining data in rows
 - [x] Wire up tapping on row -> navigate to WorkoutEntryView
+
+## Workout detail
+
+- [x] Render workout date as title using human-friendly format
+- [x] Render basic exercises lists - title and skipped toggle
+- [x] Render exercises with edit controls
+- [ ] Add notes box
+- [ ] Add delete and save buttons
+- [ ] Implement delete and save functionality
+- [ ] Tweak UI

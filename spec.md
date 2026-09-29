@@ -56,9 +56,9 @@ It consists of the following views:
 
 Where possible, displayed fields are live-computed from the current persisted state. Updating persisted data (e.g. adding new entries, deleting existing entries, editing existing entries) causes computed views to update.
 
-#### Workout date display
+#### Date display
 
-Workout dates shown on Home form cards and in Workout Log rows use the device's local calendar and time zone. Apply these rules in order:
+All dates shown in the app use the device's local calendar and time zone. Apply these rules in order:
 
 - Today's date: "Today"
 - The previous calendar day: "Yesterday"
@@ -84,8 +84,8 @@ Weekday and month names use the device locale.
   - Form name
   - If this form has never been logged (unskipped): "No workouts yet"
   - Else
-    - Last logged reps+weight+date, using the workout date display rules above
-    - Max logged reps+weight+date, using the workout date display rules above
+    - Last logged reps+weight+date, using the date display rules above
+    - Max logged reps+weight+date, using the date display rules above
 - Secondary button to view full workout log
 - Primary button to log a new workout to today only
   - If a workout is already logged today, the button becomes disabled and the text changes to "Today's workout is logged"
@@ -95,7 +95,7 @@ Note: Cycles are strictly date-based, regardless of skipped days. They run exact
 #### Logged workouts
 
 Simple list view; each row shows
-- Date, using the workout date display rules above
+- Date, using the date display rules above
 - Each target group: form with reps+weight, or "Skipped"
   - "Max" badge if this weight+rep is the max -- true for all entries where this is true, if there are multiple
 - Notes
@@ -111,7 +111,7 @@ A form view with two modes: add or edit.
 UI elements:
 - Date
   - Read-only
-  - Format: "Monday 21 September 2026"
+  - Uses the date display rules above
   - Defaults to today in add mode; displays stored date in edit mode
 - List view showing one row per target group
   - Each row always shows the target group and a "Skipped" toggle.
