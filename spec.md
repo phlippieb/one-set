@@ -43,9 +43,9 @@ Purely hardcoded to my exact plan. Priority is rapid development so that I can s
 
 Native Swift app
 Target min iOS version: 26
+Target iPhone only
 SwiftUI
 SwiftData
-iCloud sync
 
 ### Layout
 
@@ -67,20 +67,25 @@ It consists of the following views:
   - Next focus cycle name + start date
 - Cards for each form
   - Form name
-  - Last logged reps+weight+date
-  - Max logged reps+weight+date
+  - If this form has never been logged (unskipped): "No workouts yet"
+  - Else
+    - Last logged reps+weight+date
+    - Max logged reps+weight+date
 - Secondary button to view full workout log
-- Primary button to log a new workout; text changes depending on whether already logged today ("Log new"/"Log another"; button style changes to secondary)
-  - Logging again is supported so that back-logging is possible. No validation is required to prevent duplicate logs per date.
+- Primary button to log a new workout to today only
+  - If a workout is already logged today, the button becomes disabled and the text changes to "Today's workout is logged"
 
-Note: Cycles are strictly date-based, regardless of skipped days. They run exactly every 2 days. The cycles are hardcoded: Bicep focus started on Monday Sep 21; the order is Biceps -> Triceps -> Shoulders.
+Note: Cycles are strictly date-based, regardless of skipped days. They run exactly every 2 weeks. The cycles are hardcoded: Bicep focus started on Monday 21st Sep 2026 in device local timezone; the order is Biceps -> Triceps -> Shoulders.
 
 #### Logged workouts
 
 Simple list view; each row shows
 - Date
 - Forms logged with reps+weight
+  - "Max" badge if this weight+rep is the max -- true for all entries where this is true, if there are multiple
 - Notes
+
+Newest first.
 
 Tapping a row navigates to the Add/Edit workout entry view.
 
@@ -88,18 +93,21 @@ Tapping a row navigates to the Add/Edit workout entry view.
 
 A form view with two modes: add or edit.
 
-Editable fields:
+UI elements:
 - Date
+  - Read-only
+  - Format: "Monday 21 September 2026"
   - Defaults to today in add mode; displays stored date in edit mode
-  - Can be changed to any date with a calendar picker
-- A form item per target group
+- List view showing one form item row per target group
   - Each form row has:
     - The form name (e.g. Bicep Curls)
       - In add mode, the forms are automatically pre-selected based on the plan. Auto-selection is based on the previous one that was logged, not the date.
       - The form can be changed to another one from the target group by tapping on the form name, which brings up a selection picker.
+        - Selecting a different form in Add mode will immediately re-populate the pre-filled weight and rep values and update the target recommendation text
+        - Selecting a different form in Edit mode does not change the weight and rep values (and no target recommendation text is shown, so no update needed)
     - Weight
       - Hardcoded to kg
-      - +/- buttons, increment by 0.5kg
+      - +/- buttons, jump between hardcoded weights
       - In Add mode, pre-fill with the last recorded weight
     - Reps
       - +/- buttons, increment by 1
@@ -107,14 +115,62 @@ Editable fields:
     - "Skipped" toggle
         - When toggled, this form is not logged as part of the workout, so its weight/reps do not show up as the last one
     - "Repeat" toggle, for when a form felt too hard to progress next time
+      - Always pre-populated to false in Add mode
     - In Add mode: hint/footer text recommending today's target based on previous entries for this form.
-      - If previous entry for this form has "repeat" toggled, the recommended target is the same as the previous entry
-      - Else if the previous entry for this form's reps are at this form's ceiling, the recommended target bumps weight to the next hardcoded value and drops reps to this form's floor
+      - If form is in maintenance mode, recommend the previous entry's values.
+      - Else if previous entry for this form has "repeat" toggled, the recommended target is the same as the previous entry
+      - Else if the previous entry for this form's reps are at or over this form's ceiling, the recommended target bumps weight to the next hardcoded value and drops reps to this form's floor
+        - If the highest hardcoded weight and rep ceiling are reached, recommend the same values
       - Else, the recommended target keeps weight the same and increments reps by one
-  - The forms are sequenced according to the current phase in the focus cycle. The focus group's form is first, and the other forms follow in their usual order in the cycle.
+  - The forms are sequenced according to the workout's phase in the focus cycle (according to the workout's date). The focus group's form is first, and the other forms follow in their usual order in the cycle (i.e. Biceps->Triceps->Shoulders->back to start).
   - All forms are editable (to reflect what I actually did).
+- Notes -- a free text box for storing notes about this day's workout.
 - In Add mode: "Add" button. In Edit mode: "Save" button.
 
 ### Look and feel
 
 Use vanilla SwiftUI components.
+
+## Hard-coded values
+
+Focus cycle order: Biceps, Triceps, Shoulders
+Focus cycle epoch: Monday 21st Sep 2026 in device local timezone
+
+Forms per target group -- this also defines form sequencing with no (unskipped) history:
+- Biceps: Curls, Hammer curls
+- Triceps: Overhead extensions, Skull crushers
+- Shoulders: Shoulder presses, Lateral raises
+
+Per-form rep ranges:
+- Curls: 6-12
+- Hammer curls: 6-12
+- Overhead extensions: 8-15
+- Skull crushers: 8-15
+- Shoulder presses: 6-12
+- Lateral raises: 6-20
+
+Weights (what i have at home) in kg: 7, 10, 12, 15
+
+Initial values and recommended values for forms with no entries logged yet: Lowest weight, lowest rep for that form.
+
+## Logic clarification
+
+- (Updated for simplicity) Workout dates are not editable. New dates are always added to today. Only one workout can be added today.
+- Displaying a form's max from history: Max should be understood in terms of linear progression. The max is firstly the maximum weight logged, and secondly the max reps logged at that weight.
+- Workouts are not deletable.
+- Effect of marking a form as skipped:
+  - The skipped form should be persisted with all its rep/weight values. If I skipped a form yesterday and view that day's workout from the log today, the workout should still contain the form with "skipped" toggled.
+  - If a form was skipped, it should affect the form alternation when adding a new entry today. Today's form should be preselected based on the last un-skipped form logged.
+- Repeat on skipped rows: repeat has no effect if a row is skipped, so it should be disabled and ignored.
+- Editing an old workout -- effect on subsequent stored entries:
+  - Suggestions are only shown when adding today's workout. Today's suggestions should always be based on the most recent data.
+  - Other existing entries are not updated.
+- Prefill vs recommendation:
+  - Prefill = last value; user needs to manually update.
+- Allowed reps: rep floors and ceilings are not hard limits; user can go below or above when logging an entry. Min reps value is 1 (for setbacks). (Less would be equivalent to skip.)
+- If all 3 forms are marked as skipped, a workout cannot be saved in Add or Edit mode.
+- Skipped forms in entry log view: Display as skipped, omit weight/rep.
+- Maximum ties: select most recent.
+- Date across timezones: choose the simplest implementation.
+
+Bundle ID to be decided when the Xcode project is created.
