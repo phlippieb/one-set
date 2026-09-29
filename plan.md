@@ -40,7 +40,7 @@
 - [x] Add delete and save buttons
 - [x] Implement delete and save functionality
 - [x] Factor out the exercise row into a private view
-- [ ] Show each exercise in a separate card
+- [x] Show each exercise in a separate card
 - [ ] Add custom toggle UI for skipped and repeat
 - [ ] Show hint text when repeat is enabled
 - [ ] Show hint text when an exercise is skipped

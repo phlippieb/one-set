@@ -52,14 +52,18 @@ struct WorkoutEntryView: View {
 
   var body: some View {
     Form {
-      Section("Exercises") {
-        ForEach(exercises.indices, id: \.self) { index in
+      ForEach(exercises.indices, id: \.self) { index in
+        Section {
           WorkoutExerciseRow(
             exercise: $exercises[index],
             history: history,
             dayKey: dayKey,
             isAddMode: workout == nil
           )
+        } header: {
+          if index == exercises.startIndex {
+            Text("Exercises")
+          }
         }
       }
 
