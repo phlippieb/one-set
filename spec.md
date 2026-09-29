@@ -122,9 +122,9 @@ UI elements:
       - Tapping the name opens a picker for the group's forms.
       - Changing it in Add mode refreshes pre-filled values and the recommendation.
       - Changing it in Edit mode retains the current weight and reps.
-    - Weight in kg, with +/- buttons that jump between hardcoded weights
+    - Weight in kg, with a stepper that jumps between hardcoded weights
       - In Add mode, pre-fill with the last recorded weight.
-    - Reps, with +/- buttons that increment by 1
+    - Reps, with a stepper that increments by 1
       - In Add mode, pre-fill with the last recorded reps.
     - "Progress on next workout" toggle, "yes" by default in Add mode
       - "yes" stores `shouldRepeat` as false; "no" stores it as true.

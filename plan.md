@@ -46,7 +46,7 @@
 - [x] Add custom toggle UI for skipped and progress
 - [x] Show a right-aligned Progress on next workout control for new/latest focused exercise entries and hint text when set to no
 - [x] Show hint text when an exercise is skipped
-- [ ] Add consistent decrement and increment controls for weights and reps with strict alignment
+- [x] Add consistent row heights and aligned stepper controls for weights and reps
 - [ ] Keep Save visible and disable it when there are no changes to save
 - [ ] Present Workout Detail modally and allow dismissing unsaved changes without confirmation
 - [ ] Support pull-down dismissal

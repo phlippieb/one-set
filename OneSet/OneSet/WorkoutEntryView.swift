@@ -186,6 +186,8 @@ struct WorkoutEntryView: View {
 }
 
 private struct WorkoutExerciseRow: View {
+  private static let fieldRowMinHeight: CGFloat = 32
+
   @Binding var exercise: ExerciseState
   let history: WorkoutHistory
   let dayKey: String
@@ -209,6 +211,8 @@ private struct WorkoutExerciseRow: View {
         CircleToggle(title: "Skipped", isOn: skippedBinding)
           .fixedSize()
       }
+      .frame(minHeight: Self.fieldRowMinHeight)
+      Spacer(minLength: 12)
 
       if exercise.isSkipped {
         Text(
@@ -218,55 +222,56 @@ private struct WorkoutExerciseRow: View {
         )
           .font(.subheadline)
           .foregroundStyle(.secondary)
+          .frame(minHeight: Self.fieldRowMinHeight)
       } else {
-        Picker("Form", selection: formBinding) {
+        Picker("Exercise", selection: formBinding) {
           ForEach(exercise.muscleGroup.forms) { form in
             Text(form.displayName).tag(form)
           }
         }
+        .frame(minHeight: Self.fieldRowMinHeight)
 
         if isAddMode && isFocused {
           let recommendation = history.recommendation(for: exercise.form, on: dayKey)
-          LabeledContent(
-            "Target",
-            value: "\(recommendation.reps) x \(recommendation.weightKg) kg"
-          )
-          .foregroundStyle(.secondary)
+          LabeledContent("Target") {
+            Text("\(recommendation.reps) x \(recommendation.weightKg) kg")
+              .monospacedDigit()
+              .foregroundStyle(.secondary)
+          }
+          .frame(minHeight: Self.fieldRowMinHeight)
         }
-
-        Spacer(minLength: 12)
 
         LabeledContent("Weight") {
-          HStack(spacing: 12) {
-            Button {
-              adjustWeight(by: -1)
-            } label: {
-              Image(systemName: "minus")
-            }
-            .buttonStyle(.bordered)
-            .disabled(!canAdjustWeight(by: -1))
-            .accessibilityLabel("Decrease weight")
-
+          HStack(spacing: 8) {
             Text("\(exercise.weightKg) kg")
               .monospacedDigit()
-              .frame(minWidth: 44)
+              .frame(minWidth: 44, alignment: .trailing)
 
-            Button {
-              adjustWeight(by: 1)
-            } label: {
-              Image(systemName: "plus")
-            }
-            .buttonStyle(.bordered)
-            .disabled(!canAdjustWeight(by: 1))
-            .accessibilityLabel("Increase weight")
+            Stepper(
+              "Weight",
+              value: weightIndexBinding,
+              in: weightIndexBounds
+            )
+            .labelsHidden()
           }
         }
+        .frame(minHeight: Self.fieldRowMinHeight)
 
-        Stepper(
-          "Reps: \(exercise.reps)",
-          value: $exercise.reps,
-          in: 1...Int.max
-        )
+        LabeledContent("Reps") {
+          HStack(spacing: 8) {
+            Text("\(exercise.reps)")
+              .monospacedDigit()
+              .frame(minWidth: 44, alignment: .trailing)
+
+            Stepper(
+              "Reps",
+              value: $exercise.reps,
+              in: 1...Int.max
+            )
+            .labelsHidden()
+          }
+        }
+        .frame(minHeight: Self.fieldRowMinHeight)
 
         if shouldShowProgressControl {
           LabeledContent("Progress on next workout") {
@@ -275,6 +280,7 @@ private struct WorkoutExerciseRow: View {
               isOn: shouldProgressBinding
             )
           }
+          .frame(minHeight: Self.fieldRowMinHeight)
 
           if exercise.shouldRepeat {
             Text("Recommend the same weight and reps next time.")
@@ -318,6 +324,27 @@ private struct WorkoutExerciseRow: View {
     }
   }
 
+  private var weightIndexBinding: Binding<Int> {
+    Binding {
+      guard let index = WorkoutPlan.availableWeightsKg.firstIndex(
+        of: exercise.weightKg
+      ) else {
+        preconditionFailure("Exercise weight must be available in the workout plan")
+      }
+      return index
+    } set: { index in
+      guard WorkoutPlan.availableWeightsKg.indices.contains(index) else { return }
+      exercise.weightKg = WorkoutPlan.availableWeightsKg[index]
+    }
+  }
+
+  private var weightIndexBounds: ClosedRange<Int> {
+    WorkoutPlan.availableWeightsKg.startIndex
+      ... WorkoutPlan.availableWeightsKg.index(
+        before: WorkoutPlan.availableWeightsKg.endIndex
+      )
+  }
+
   private var shouldProgressBinding: Binding<Bool> {
     Binding {
       !exercise.shouldRepeat
@@ -334,28 +361,6 @@ private struct WorkoutExerciseRow: View {
       return true
     }
     return latestPerformance.workout.dayKey <= dayKey
-  }
-
-  private func canAdjustWeight(by offset: Int) -> Bool {
-    guard let weightIndex = WorkoutPlan.availableWeightsKg.firstIndex(
-      of: exercise.weightKg
-    ) else {
-      return false
-    }
-    return WorkoutPlan.availableWeightsKg.indices.contains(weightIndex + offset)
-  }
-
-  private func adjustWeight(by offset: Int) {
-    guard let weightIndex = WorkoutPlan.availableWeightsKg.firstIndex(
-      of: exercise.weightKg
-    ) else {
-      return
-    }
-    let nextIndex = weightIndex + offset
-    guard WorkoutPlan.availableWeightsKg.indices.contains(nextIndex) else {
-      return
-    }
-    exercise.weightKg = WorkoutPlan.availableWeightsKg[nextIndex]
   }
 }
 
