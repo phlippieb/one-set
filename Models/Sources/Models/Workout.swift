@@ -5,7 +5,7 @@ import SwiftData
 public final class Workout {
   @Attribute(.unique) public private(set) var dayKey: String
   public var notes: String
-  @Relationship(deleteRule: .cascade, inverse: \PerformedSet.workout)
+  @Relationship(deleteRule: .cascade, inverse: \PerformedSet.workoutRelationship)
   public private(set) var performedSets: [PerformedSet]
   
   public init(

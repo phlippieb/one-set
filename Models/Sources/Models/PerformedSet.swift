@@ -6,7 +6,14 @@ public final class PerformedSet {
   public private(set) var weightKg: Int
   public private(set) var reps: Int
   public var shouldRepeat: Bool
-  public private(set) var workout: Workout
+  private(set) var workoutRelationship: Workout?
+
+  public var workout: Workout {
+    guard let workoutRelationship else {
+      preconditionFailure("A performed set must belong to a workout")
+    }
+    return workoutRelationship
+  }
   
   public var form: ExerciseForm {
     // All writes pass through typed, validated APIs.
@@ -14,7 +21,7 @@ public final class PerformedSet {
   }
   
   init(workout: Workout, input: PerformedSetInput) {
-    self.workout = workout
+    self.workoutRelationship = workout
     self.formID = input.form.id
     self.weightKg = input.weightKg
     self.reps = input.reps
