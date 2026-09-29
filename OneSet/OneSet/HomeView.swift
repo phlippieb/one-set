@@ -211,23 +211,22 @@ private struct FocusCycleDayView: View {
       switch day.state {
       case .logged:
         Circle()
-          .fill(.primary)
+          .fill(.tint)
       case .missed:
         Circle()
-          .stroke(.secondary, lineWidth: 1)
-        Rectangle()
           .fill(.secondary)
-          .frame(width: 18, height: 1)
-          .rotationEffect(.degrees(-45))
       case .today(isLogged: true):
         Circle()
           .fill(.tint)
+        Image(systemName: "checkmark")
+          .font(.system(size: 9, weight: .bold))
+          .foregroundStyle(.background)
       case .today(isLogged: false):
         Circle()
           .stroke(.tint, lineWidth: 2)
       case .upcoming:
         Circle()
-          .stroke(.tertiary, lineWidth: 1)
+          .stroke(.secondary, lineWidth: 1)
       }
     }
     .frame(width: 16, height: 16)

@@ -75,10 +75,10 @@ Weekday and month names use the device locale.
   - Focused group name (Biceps, Triceps or Shoulders + "Focus")
   - Cycle progress
     - This is a segmented progress bar with a segment (circle) for each day in the cycle
-    - Each previous day with a logged entry is filled
-    - Each previous day without a logged entry has a diagonal strikethrough
-    - Today is tinted, and empty or filled depending on whether an entry is logged yet
-    - Upcoming days are empty
+    - Each previous day with a logged entry is filled with the tint color
+    - Each previous day without a logged entry is filled gray
+    - Today is outlined with the tint color when unlogged, or filled with the tint color and marked with a checkmark when logged
+    - Upcoming days are empty and outlined gray
   - Next focus cycle name + start date
 - Cards for each form
   - Form name
