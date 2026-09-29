@@ -4,7 +4,6 @@ public enum WorkoutDayKey {
   public static func today(
     now: Date = .now,
     timeZone: TimeZone = .current
-    // TODO: consider Tagged type for day key
   ) -> String {
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = timeZone
