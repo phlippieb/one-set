@@ -42,7 +42,7 @@
 - [x] Factor out the exercise row into a private view
 - [x] Show each exercise in a separate card
 - [x] Add custom toggle UI for skipped and repeat
-- [ ] Show hint text when repeat is enabled
+- [x] Show a right-aligned Repeat control for new/latest exercise entries and hint text when enabled
 - [x] Show hint text when an exercise is skipped
 - [ ] Add consistent decrement and increment controls for weights and reps with strict alignment
 - [ ] Keep Save visible and disable it when there are no changes to save

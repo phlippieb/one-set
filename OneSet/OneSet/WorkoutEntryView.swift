@@ -201,7 +201,11 @@ private struct WorkoutExerciseRow: View {
       }
 
       if exercise.isSkipped {
-        Text("No set will be recorded for this muscle group.")
+        Text(
+          isAddMode
+            ? "No set will be recorded for this muscle group."
+            : "No set is recorded for this muscle group."
+        )
           .font(.subheadline)
           .foregroundStyle(.secondary)
       } else {
@@ -243,7 +247,16 @@ private struct WorkoutExerciseRow: View {
           in: 1...Int.max
         )
 
-        CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
+        if shouldShowRepeatControl {
+          CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+
+          if exercise.shouldRepeat {
+            Text("Recommend the same weight and reps next time.")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          }
+        }
 
         if isAddMode {
           let recommendation = history.recommendation(for: exercise.form, on: dayKey)
@@ -289,6 +302,15 @@ private struct WorkoutExerciseRow: View {
     }
   }
 
+  private var shouldShowRepeatControl: Bool {
+    guard !isAddMode,
+          let latestPerformance = history.lastPerformance(for: exercise.form)
+            else {
+      return true
+    }
+    return latestPerformance.workout.dayKey <= dayKey
+  }
+
   private func canAdjustWeight(by offset: Int) -> Bool {
     guard let weightIndex = WorkoutPlan.availableWeightsKg.firstIndex(
       of: exercise.weightKg
@@ -321,11 +343,11 @@ private struct CircleToggle: View {
       isOn.toggle()
     } label: {
       HStack(spacing: 8) {
+        Text(title)
+          .foregroundStyle(.primary)
         Image(systemName: isOn ? "circle.fill" : "circle")
           .font(.title3)
           .foregroundStyle(isOn ? Color.accentColor : Color.secondary)
-        Text(title)
-          .foregroundStyle(.primary)
       }
     }
     .buttonStyle(.plain)
