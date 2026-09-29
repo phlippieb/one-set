@@ -3,11 +3,15 @@ import SwiftData
 import SwiftUI
 
 struct WorkoutEntryView: View {
+  @Environment(\.dismiss) private var dismiss
+  @Environment(\.modelContext) private var modelContext
   @Query(sort: \Workout.dayKey, order: .reverse) private var workouts: [Workout]
 
   let workout: Workout?
   @State private var exercises: [ExerciseState]
   @State private var didInitializeAddMode: Bool
+  @State private var errorMessage: String?
+  @State private var isShowingDeleteConfirmation = false
   @State private var notes: String
 
   init(workout: Workout? = nil) {
@@ -125,7 +129,9 @@ struct WorkoutEntryView: View {
 
       if workout != nil {
         Section {
-          Button("Delete", role: .destructive) {}
+          Button("Delete", role: .destructive) {
+            isShowingDeleteConfirmation = true
+          }
         }
       }
     }
@@ -134,8 +140,26 @@ struct WorkoutEntryView: View {
     )
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
-        Button(workout == nil ? "Add" : "Save") {}
+        Button(workout == nil ? "Add" : "Save", action: saveWorkout)
+          .disabled(!didInitializeAddMode || exercises.allSatisfy(\.isSkipped))
       }
+    }
+    .confirmationDialog(
+      "Delete Workout?",
+      isPresented: $isShowingDeleteConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button("Delete Workout", role: .destructive, action: deleteWorkout)
+      Button("Cancel", role: .cancel) {}
+    } message: {
+      Text("This cannot be undone.")
+    }
+    .alert("Unable to Complete Action", isPresented: isShowingError) {
+      Button("OK") {
+        errorMessage = nil
+      }
+    } message: {
+      Text(errorMessage ?? "Please try again.")
     }
     .task {
       guard !didInitializeAddMode else { return }
@@ -157,6 +181,59 @@ struct WorkoutEntryView: View {
 
   private var history: WorkoutHistory {
     WorkoutHistory(workouts: workouts)
+  }
+
+  private var isShowingError: Binding<Bool> {
+    Binding {
+      errorMessage != nil
+    } set: { isShowing in
+      if !isShowing {
+        errorMessage = nil
+      }
+    }
+  }
+
+  private func saveWorkout() {
+    do {
+      let performedSets = try exercises.compactMap { exercise -> PerformedSetInput? in
+        guard !exercise.isSkipped else { return nil }
+        return try PerformedSetInput(
+          form: exercise.form,
+          weightKg: exercise.weightKg,
+          reps: exercise.reps,
+          shouldRepeat: exercise.shouldRepeat
+        )
+      }
+
+      if let workout {
+        try workout.update(
+          notes: notes,
+          performedSets: performedSets,
+          in: modelContext
+        )
+      } else {
+        modelContext.insert(
+          try Workout(notes: notes, performedSets: performedSets)
+        )
+      }
+      try modelContext.save()
+      dismiss()
+    } catch {
+      modelContext.rollback()
+      errorMessage = error.localizedDescription
+    }
+  }
+
+  private func deleteWorkout() {
+    guard let workout else { return }
+    modelContext.delete(workout)
+    do {
+      try modelContext.save()
+      dismiss()
+    } catch {
+      modelContext.rollback()
+      errorMessage = error.localizedDescription
+    }
   }
 
   private func skippedBinding(at index: Int) -> Binding<Bool> {

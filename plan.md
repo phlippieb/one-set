@@ -38,5 +38,5 @@
 - [x] Render exercises with edit controls
 - [x] Add notes box
 - [x] Add delete and save buttons
-- [ ] Implement delete and save functionality
+- [x] Implement delete and save functionality
 - [ ] Tweak UI
