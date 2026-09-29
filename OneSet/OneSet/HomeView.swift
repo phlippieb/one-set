@@ -1,3 +1,4 @@
+import Foundation
 import Models
 import SwiftData
 import SwiftUI
@@ -11,9 +12,20 @@ struct HomeView: View {
         LazyVStack(alignment: .leading, spacing: 16) {
           if let cycle = WorkoutPlan.focusCycle(containing: todayDayKey) {
             VStack(alignment: .leading, spacing: 16) {
-
-              Text("\(cycle.focusedGroup.displayName) Focus")
-                .font(.title.bold())
+              HStack(alignment: .lastTextBaseline) {
+                Text("\(cycle.focusedGroup.displayName) Focus")
+                  .font(.title.bold())
+                if let startDayComponents = WorkoutDayKey.dateComponents(from: cycle.startDayKey),
+                  let endDayComponents = WorkoutDayKey.dateComponents(from: cycle.endDayKey),
+                  let startDay = startDayComponents.calendar?.date(from: startDayComponents),
+                  let endDay = endDayComponents.calendar?.date(from: endDayComponents)
+                {
+                  Text(formattedDateRange(from: startDay, to: endDay))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                  Spacer()
+                }
+              }
 
               HStack(spacing: 0) {
                 ForEach(cycleProgress) { day in
@@ -21,12 +33,6 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity)
                 }
               }
-
-              Text(
-                "Next: \(cycle.nextFocusedGroup.displayName) Focus starts \(formattedDate(cycle.nextStartDayKey))"
-              )
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
           }
@@ -232,6 +238,12 @@ private func formattedDate(_ dayKey: String) -> String {
     return dayKey
   }
   return date.formatted(date: .long, time: .omitted)
+}
+
+private func formattedDateRange(from startDay: Date, to endDay: Date) -> String {
+  let formatter = DateIntervalFormatter()
+  formatter.dateTemplate = "dMMM"
+  return formatter.string(from: startDay, to: endDay)
 }
 
 #Preview {
