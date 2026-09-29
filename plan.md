@@ -21,4 +21,4 @@
 
 - [x] Seed app with dummy data
 - [x] Render Home focus status cycle
-- [ ] Render Home form cards
+- [x] Render Home form cards

@@ -8,27 +8,41 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if let cycle = WorkoutPlan.focusCycle(containing: todayDayKey) {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("\(cycle.focusedGroup.displayName) Focus")
-                            .font(.title.bold())
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    if let cycle = WorkoutPlan.focusCycle(containing: todayDayKey) {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("\(cycle.focusedGroup.displayName) Focus")
+                                .font(.title.bold())
 
-                        HStack(spacing: 0) {
-                            ForEach(cycleProgress) { day in
-                                FocusCycleDayView(day: day)
-                                    .frame(maxWidth: .infinity)
+                            HStack(spacing: 0) {
+                                ForEach(cycleProgress) { day in
+                                    FocusCycleDayView(day: day)
+                                        .frame(maxWidth: .infinity)
+                                }
                             }
-                        }
 
-                        Text(
-                            "Next: \(cycle.nextFocusedGroup.displayName) Focus starts \(formattedDate(cycle.nextStartDayKey))"
-                        )
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                            Text(
+                                "Next: \(cycle.nextFocusedGroup.displayName) Focus starts \(formattedDate(cycle.nextStartDayKey))"
+                            )
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
+
+                    Text("Exercises")
+                        .font(.title2.bold())
+                        .padding(.top, 8)
+
+                    ForEach(ExerciseForm.allCases) { form in
+                        FormSummaryCard(
+                            form: form,
+                            lastPerformance: workoutHistory.lastPerformance(for: form),
+                            maximumPerformance: workoutHistory.maximumPerformance(for: form)
+                        )
+                    }
                 }
+                .padding()
             }
             .navigationTitle("Home")
         }
@@ -39,16 +53,51 @@ struct HomeView: View {
     }
 
     private var cycleProgress: [FocusCycle.Day] {
-        WorkoutHistory(workouts: workouts).focusCycleProgress(todayDayKey: todayDayKey)
+        workoutHistory.focusCycleProgress(todayDayKey: todayDayKey)
     }
 
-    private func formattedDate(_ dayKey: String) -> String {
-        guard let components = WorkoutDayKey.dateComponents(from: dayKey),
-              let date = components.calendar?.date(from: components)
-        else {
-            return dayKey
+    private var workoutHistory: WorkoutHistory {
+        WorkoutHistory(workouts: workouts)
+    }
+}
+
+private struct FormSummaryCard: View {
+    let form: ExerciseForm
+    let lastPerformance: PerformedSet?
+    let maximumPerformance: PerformedSet?
+
+    var body: some View {
+        GroupBox {
+            if let lastPerformance, let maximumPerformance {
+                VStack(spacing: 12) {
+                    performanceRow(title: "Last", performedSet: lastPerformance)
+                    Divider()
+                    performanceRow(title: "Max", performedSet: maximumPerformance)
+                }
+            } else {
+                Text("No workouts yet")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } label: {
+            Text(form.displayName)
+                .font(.headline)
         }
-        return date.formatted(date: .long, time: .omitted)
+        .frame(maxWidth: .infinity)
+    }
+
+    private func performanceRow(title: String, performedSet: PerformedSet) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title)
+                .foregroundStyle(.secondary)
+            Spacer()
+            VStack(alignment: .trailing, spacing: 2) {
+                Text("\(performedSet.reps) reps at \(performedSet.weightKg) kg")
+                Text(formattedDate(performedSet.workout.dayKey))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -99,6 +148,15 @@ private struct FocusCycleDayView: View {
         }
         return "\(day.dayKey), \(state)"
     }
+}
+
+private func formattedDate(_ dayKey: String) -> String {
+    guard let components = WorkoutDayKey.dateComponents(from: dayKey),
+          let date = components.calendar?.date(from: components)
+    else {
+        return dayKey
+    }
+    return date.formatted(date: .long, time: .omitted)
 }
 
 #Preview {
