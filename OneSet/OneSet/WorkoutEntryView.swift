@@ -122,10 +122,21 @@ struct WorkoutEntryView: View {
           .frame(minHeight: 120)
           .accessibilityLabel("Notes")
       }
+
+      if workout != nil {
+        Section {
+          Button("Delete", role: .destructive) {}
+        }
+      }
     }
     .navigationTitle(
       workout.map { WorkoutDateDisplay.relative($0.dayKey) } ?? "Log Workout"
     )
+    .toolbar {
+      ToolbarItem(placement: .confirmationAction) {
+        Button(workout == nil ? "Add" : "Save") {}
+      }
+    }
     .task {
       guard !didInitializeAddMode else { return }
       for index in exercises.indices {

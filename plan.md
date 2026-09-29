@@ -37,6 +37,6 @@
 - [x] Render basic exercises lists - title and skipped toggle
 - [x] Render exercises with edit controls
 - [x] Add notes box
-- [ ] Add delete and save buttons
+- [x] Add delete and save buttons
 - [ ] Implement delete and save functionality
 - [ ] Tweak UI
