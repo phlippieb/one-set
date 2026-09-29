@@ -41,9 +41,9 @@
 - [x] Implement delete and save functionality
 - [x] Factor out the exercise row into a private view
 - [x] Show each exercise in a separate card
-- [ ] Add custom toggle UI for skipped and repeat
+- [x] Add custom toggle UI for skipped and repeat
 - [ ] Show hint text when repeat is enabled
-- [ ] Show hint text when an exercise is skipped
+- [x] Show hint text when an exercise is skipped
 - [ ] Add consistent decrement and increment controls for weights and reps with strict alignment
 - [ ] Keep Save visible and disable it when there are no changes to save
 - [ ] Present Workout Detail modally and allow dismissing unsaved changes without confirmation

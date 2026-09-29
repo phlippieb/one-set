@@ -196,11 +196,15 @@ private struct WorkoutExerciseRow: View {
         Text(exercise.muscleGroup.displayName)
           .font(.headline)
         Spacer()
-        Toggle("Skipped", isOn: skippedBinding)
+        CircleToggle(title: "Skipped", isOn: skippedBinding)
           .fixedSize()
       }
 
-      if !exercise.isSkipped {
+      if exercise.isSkipped {
+        Text("No set will be recorded for this muscle group.")
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+      } else {
         Picker("Form", selection: formBinding) {
           ForEach(exercise.muscleGroup.forms) { form in
             Text(form.displayName).tag(form)
@@ -239,7 +243,7 @@ private struct WorkoutExerciseRow: View {
           in: 1...Int.max
         )
 
-        Toggle("Repeat", isOn: $exercise.shouldRepeat)
+        CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
 
         if isAddMode {
           let recommendation = history.recommendation(for: exercise.form, on: dayKey)
@@ -305,6 +309,28 @@ private struct WorkoutExerciseRow: View {
       return
     }
     exercise.weightKg = WorkoutPlan.availableWeightsKg[nextIndex]
+  }
+}
+
+private struct CircleToggle: View {
+  let title: String
+  @Binding var isOn: Bool
+
+  var body: some View {
+    Button {
+      isOn.toggle()
+    } label: {
+      HStack(spacing: 8) {
+        Image(systemName: isOn ? "circle.fill" : "circle")
+          .font(.title3)
+          .foregroundStyle(isOn ? Color.accentColor : Color.secondary)
+        Text(title)
+          .foregroundStyle(.primary)
+      }
+    }
+    .buttonStyle(.plain)
+    .accessibilityLabel(title)
+    .accessibilityValue(isOn ? "On" : "Off")
   }
 }
 
