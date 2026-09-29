@@ -54,6 +54,8 @@ It consists of the following views:
 - Logged workouts
 - Add/Edit workout entry
 
+Where possible, displayed fields are live-computed from the current persisted state. Updating persisted data (e.g. adding new entries, deleting existing entries, editing existing entries) causes computed views to update.
+
 #### Home
 
 - Current focus cycle status
@@ -81,7 +83,7 @@ Note: Cycles are strictly date-based, regardless of skipped days. They run exact
 
 Simple list view; each row shows
 - Date
-- Forms logged with reps+weight
+- Each target group: form with reps+weight, or "Skipped"
   - "Max" badge if this weight+rep is the max -- true for all entries where this is true, if there are multiple
 - Notes
 
@@ -98,33 +100,31 @@ UI elements:
   - Read-only
   - Format: "Monday 21 September 2026"
   - Defaults to today in add mode; displays stored date in edit mode
-- List view showing one form item row per target group
-  - Each form row has:
-    - The form name (e.g. Bicep Curls)
-      - In add mode, the forms are automatically pre-selected based on the plan. Auto-selection is based on the previous one that was logged, not the date.
-      - The form can be changed to another one from the target group by tapping on the form name, which brings up a selection picker.
-        - Selecting a different form in Add mode will immediately re-populate the pre-filled weight and rep values and update the target recommendation text
-        - Selecting a different form in Edit mode does not change the weight and rep values (and no target recommendation text is shown, so no update needed)
-    - Weight
-      - Hardcoded to kg
-      - +/- buttons, jump between hardcoded weights
-      - In Add mode, pre-fill with the last recorded weight
-    - Reps
-      - +/- buttons, increment by 1
-      - In Add mode, pre-fill with the last recorded reps
-    - "Skipped" toggle
-        - When toggled, this form is not logged as part of the workout, so its weight/reps do not show up as the last one
-    - "Repeat" toggle, for when a form felt too hard to progress next time
-      - Always pre-populated to false in Add mode
-    - In Add mode: hint/footer text recommending today's target based on previous entries for this form.
-      - If form is in maintenance mode, recommend the previous entry's values.
-      - Else if previous entry for this form has "repeat" toggled, the recommended target is the same as the previous entry
-      - Else if the previous entry for this form's reps are at or over this form's ceiling, the recommended target bumps weight to the next hardcoded value and drops reps to this form's floor
-        - If the highest hardcoded weight and rep ceiling are reached, recommend the same values
-      - Else, the recommended target keeps weight the same and increments reps by one
-  - The forms are sequenced according to the workout's phase in the focus cycle (according to the workout's date). The focus group's form is first, and the other forms follow in their usual order in the cycle (i.e. Biceps->Triceps->Shoulders->back to start).
-  - All forms are editable (to reflect what I actually did).
+- List view showing one row per target group
+  - Each row always shows the target group and a "Skipped" toggle.
+  - When skipped, all other fields are hidden.
+  - Otherwise, the row shows:
+    - Form name (e.g. Bicep Curls)
+      - In Add mode, pre-select the opposite of the group's last performed form, or the first form if there is no history.
+      - Tapping the name opens a picker for the group's forms.
+      - Changing it in Add mode refreshes pre-filled values and the recommendation.
+      - Changing it in Edit mode retains the current weight and reps.
+    - Weight in kg, with +/- buttons that jump between hardcoded weights
+      - In Add mode, pre-fill with the last recorded weight.
+    - Reps, with +/- buttons that increment by 1
+      - In Add mode, pre-fill with the last recorded reps.
+    - "Repeat" toggle, always false initially in Add mode
+    - In Add mode, target recommendation:
+      - In maintenance mode, recommend the previous entry's values.
+      - Else if the previous entry has "Repeat" toggled, recommend the same values.
+      - Else if its reps are at or over the ceiling, use the next weight and rep floor.
+      - At the highest weight and rep ceiling, recommend the same values.
+      - Otherwise, keep the weight and increment reps by one.
+  - Rows are ordered by the workout date's focus cycle: focus group first, then Biceps->Triceps->Shoulders->back to start.
+  - All rows are editable to reflect what was actually done.
 - Notes -- a free text box for storing notes about this day's workout.
+- In Edit mode: Destructive "Delete" button
+  - Triggers confirmation, then exits the view. No undo.
 - In Add mode: "Add" button. In Edit mode: "Save" button.
 
 ### Look and feel
@@ -157,20 +157,22 @@ Initial values and recommended values for forms with no entries logged yet: Lowe
 
 - (Updated for simplicity) Workout dates are not editable. New dates are always added to today. Only one workout can be added today.
 - Displaying a form's max from history: Max should be understood in terms of linear progression. The max is firstly the maximum weight logged, and secondly the max reps logged at that weight.
-- Workouts are not deletable.
-- Effect of marking a form as skipped:
-  - The skipped form should be persisted with all its rep/weight values. If I skipped a form yesterday and view that day's workout from the log today, the workout should still contain the form with "skipped" toggled.
-  - If a form was skipped, it should affect the form alternation when adding a new entry today. Today's form should be preselected based on the last un-skipped form logged.
-- Repeat on skipped rows: repeat has no effect if a row is skipped, so it should be disabled and ignored.
+- Only performed sets are persisted. A workout without a set for a target group means that group was skipped.
+- Skipping does not consume the form alternation; selection is based on the last performed form.
+- While Add/Edit remains open, hiding a row's fields preserves their values. Saving it as skipped discards them.
+- When unskipping a previously saved group in Edit mode, initialize its form and values from history before that workout's date, using normal no-history defaults when needed.
 - Editing an old workout -- effect on subsequent stored entries:
   - Suggestions are only shown when adding today's workout. Today's suggestions should always be based on the most recent data.
   - Other existing entries are not updated.
 - Prefill vs recommendation:
   - Prefill = last value; user needs to manually update.
 - Allowed reps: rep floors and ceilings are not hard limits; user can go below or above when logging an entry. Min reps value is 1 (for setbacks). (Less would be equivalent to skip.)
-- If all 3 forms are marked as skipped, a workout cannot be saved in Add or Edit mode.
-- Skipped forms in entry log view: Display as skipped, omit weight/rep.
+- If all 3 target groups are marked as skipped, a workout cannot be saved in Add or Edit mode.
+- Skipped groups in the workout log display as, for example, "Biceps: Skipped".
 - Maximum ties: select most recent.
 - Date across timezones: choose the simplest implementation.
+- Delete:
+  - Live-computed UI elements are updated automatically
+  - Associated performed sets are also deleted (leverage SwiftData explicit cascade delete rule).
 
 Bundle ID to be decided when the Xcode project is created.
