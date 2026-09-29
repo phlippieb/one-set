@@ -225,6 +225,17 @@ private struct WorkoutExerciseRow: View {
           }
         }
 
+        if isAddMode && isFocused {
+          let recommendation = history.recommendation(for: exercise.form, on: dayKey)
+          LabeledContent(
+            "Target",
+            value: "\(recommendation.reps) x \(recommendation.weightKg) kg"
+          )
+          .foregroundStyle(.secondary)
+        }
+
+        Spacer(minLength: 12)
+
         LabeledContent("Weight") {
           HStack(spacing: 12) {
             Button {
@@ -257,9 +268,12 @@ private struct WorkoutExerciseRow: View {
           in: 1...Int.max
         )
 
-        if shouldShowRepeatControl {
-          LabeledContent("Ready to progress") {
-            CircleToggle(title: "Repeat", isOn: $exercise.shouldRepeat)
+        if shouldShowProgressControl {
+          LabeledContent("Progress on next workout") {
+            CircleToggle(
+              title: exercise.shouldRepeat ? "No" : "Yes",
+              isOn: shouldProgressBinding
+            )
           }
 
           if exercise.shouldRepeat {
@@ -267,15 +281,6 @@ private struct WorkoutExerciseRow: View {
               .font(.subheadline)
               .foregroundStyle(.secondary)
           }
-        }
-
-        if isAddMode {
-          let recommendation = history.recommendation(for: exercise.form, on: dayKey)
-          LabeledContent(
-            "Target",
-            value: "\(recommendation.reps) x \(recommendation.weightKg) kg"
-          )
-          .foregroundStyle(.secondary)
         }
       }
     }
@@ -313,7 +318,15 @@ private struct WorkoutExerciseRow: View {
     }
   }
 
-  private var shouldShowRepeatControl: Bool {
+  private var shouldProgressBinding: Binding<Bool> {
+    Binding {
+      !exercise.shouldRepeat
+    } set: { shouldProgress in
+      exercise.shouldRepeat = !shouldProgress
+    }
+  }
+
+  private var shouldShowProgressControl: Bool {
     guard isFocused else { return false }
     guard !isAddMode,
           let latestPerformance = history.lastPerformance(for: exercise.form)

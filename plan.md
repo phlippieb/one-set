@@ -42,9 +42,9 @@
 - [x] Factor out the exercise row into a private view
 - [x] Show each exercise in a separate card
 - [x] Add a Focus badge to the focused exercise card
-- [ ] Show target weight and reps for the focused exercise
-- [x] Add custom toggle UI for skipped and repeat
-- [x] Show a right-aligned Repeat control for new/latest focused exercise entries and hint text when enabled
+- [x] Show target weight and reps for the focused exercise
+- [x] Add custom toggle UI for skipped and progress
+- [x] Show a right-aligned Progress on next workout control for new/latest focused exercise entries and hint text when set to no
 - [x] Show hint text when an exercise is skipped
 - [ ] Add consistent decrement and increment controls for weights and reps with strict alignment
 - [ ] Keep Save visible and disable it when there are no changes to save

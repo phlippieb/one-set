@@ -126,11 +126,12 @@ UI elements:
       - In Add mode, pre-fill with the last recorded weight.
     - Reps, with +/- buttons that increment by 1
       - In Add mode, pre-fill with the last recorded reps.
-    - "Repeat" toggle, always false initially in Add mode
+    - "Progress on next workout" toggle, "yes" by default in Add mode
+      - "yes" stores `shouldRepeat` as false; "no" stores it as true.
       - Show only for the focused muscle group, in Add mode or when editing the selected form's most recent entry; hide it when a later entry for that form exists.
-    - In Add mode, target recommendation:
+    - For the focused muscle group in Add mode, target recommendation:
       - In maintenance mode, recommend the previous entry's values.
-      - Else if the previous entry has "Repeat" toggled, recommend the same values.
+      - Else if the previous entry's "Progress on next workout" value is "no", recommend the same values.
       - Else if its reps are at or over the ceiling, use the next weight and rep floor.
       - At the highest weight and rep ceiling, recommend the same values.
       - Otherwise, keep the weight and increment reps by one.
