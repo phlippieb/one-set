@@ -1,4 +1,3 @@
-import Foundation
 import Models
 import SwiftData
 import SwiftUI
@@ -96,12 +95,11 @@ private struct FocusCycleView: View {
       HStack(alignment: .lastTextBaseline) {
         Text("\(cycle.focusedGroup.displayName) Focus")
           .font(.title.bold())
-        if let startDayComponents = WorkoutDayKey.dateComponents(from: cycle.startDayKey),
-          let endDayComponents = WorkoutDayKey.dateComponents(from: cycle.endDayKey),
-          let startDay = startDayComponents.calendar?.date(from: startDayComponents),
-          let endDay = endDayComponents.calendar?.date(from: endDayComponents)
-        {
-          Text(formattedDateRange(from: startDay, to: endDay))
+        if let dateRange = WorkoutDateDisplay.range(
+          from: cycle.startDayKey,
+          to: cycle.endDayKey
+        ) {
+          Text(dateRange)
             .font(.footnote)
             .foregroundStyle(.secondary)
           Spacer()
@@ -190,7 +188,7 @@ private struct FormSummaryCard: View {
       Text(title)
         .foregroundStyle(.secondary)
       Text("\(performedSet.reps) x \(performedSet.weightKg) kg")
-      Text(formattedDate(performedSet.workout.dayKey))
+      Text(WorkoutDateDisplay.relative(performedSet.workout.dayKey))
         .font(.caption)
         .foregroundStyle(.secondary)
     }
@@ -244,21 +242,6 @@ private struct FocusCycleDayView: View {
     }
     return "\(day.dayKey), \(state)"
   }
-}
-
-private func formattedDate(_ dayKey: String) -> String {
-  guard let components = WorkoutDayKey.dateComponents(from: dayKey),
-    let date = components.calendar?.date(from: components)
-  else {
-    return dayKey
-  }
-  return date.formatted(date: .long, time: .omitted)
-}
-
-private func formattedDateRange(from startDay: Date, to endDay: Date) -> String {
-  let formatter = DateIntervalFormatter()
-  formatter.dateTemplate = "dMMM"
-  return formatter.string(from: startDay, to: endDay)
 }
 
 #Preview {

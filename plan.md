@@ -29,4 +29,4 @@
 - [x] Render basic Workout Log rows
 - [x] Group list by cycle, e.g. "Biceps focus (start date - end date)" - similar to the home screen
 - [x] Render remaining data in rows
-- [ ] Wire up tapping on row -> navigate to WorkoutEntryView
+- [x] Wire up tapping on row -> navigate to WorkoutEntryView

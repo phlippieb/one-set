@@ -56,6 +56,19 @@ It consists of the following views:
 
 Where possible, displayed fields are live-computed from the current persisted state. Updating persisted data (e.g. adding new entries, deleting existing entries, editing existing entries) causes computed views to update.
 
+#### Workout date display
+
+Workout dates shown on Home form cards and in Workout Log rows use the device's local calendar and time zone. Apply these rules in order:
+
+- Today's date: "Today"
+- The previous calendar day: "Yesterday"
+- Another date in the current calendar week: full weekday, e.g. "Monday"
+- A date in the previous calendar week: "Last" plus the full weekday, e.g. "Last Thursday"
+- Another date in the current year: full weekday, day, and abbreviated month, e.g. "Friday 5 Sep"
+- A date in another year: full weekday, day, abbreviated month, and year, e.g. "Friday 5 Sep 2025"
+
+Weekday and month names use the device locale.
+
 #### Home
 
 - Current focus cycle status
@@ -71,8 +84,8 @@ Where possible, displayed fields are live-computed from the current persisted st
   - Form name
   - If this form has never been logged (unskipped): "No workouts yet"
   - Else
-    - Last logged reps+weight+date
-    - Max logged reps+weight+date
+    - Last logged reps+weight+date, using the workout date display rules above
+    - Max logged reps+weight+date, using the workout date display rules above
 - Secondary button to view full workout log
 - Primary button to log a new workout to today only
   - If a workout is already logged today, the button becomes disabled and the text changes to "Today's workout is logged"
@@ -82,7 +95,7 @@ Note: Cycles are strictly date-based, regardless of skipped days. They run exact
 #### Logged workouts
 
 Simple list view; each row shows
-- Date
+- Date, using the workout date display rules above
 - Each target group: form with reps+weight, or "Skipped"
   - "Max" badge if this weight+rep is the max -- true for all entries where this is true, if there are multiple
 - Notes
