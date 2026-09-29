@@ -16,3 +16,9 @@
 - [x] Implement computed model logic and mappings
 - [x] Unit-test models
 - [x] Integrate Models package in app project
+
+## App
+
+- [x] Seed app with dummy data
+- [ ] Render Home focus status cycle
+- [ ] Render Home form cards
