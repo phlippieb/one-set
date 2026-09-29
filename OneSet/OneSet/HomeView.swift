@@ -66,7 +66,7 @@ struct HomeView: View {
         }
         .padding()
       }
-      .navigationTitle("Home")
+      .navigationTitle("One Set")
     }
   }
 
