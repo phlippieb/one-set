@@ -4,6 +4,7 @@ import SwiftUI
 
 struct HomeView: View {
   @Query private var workouts: [Workout]
+  @State private var isShowingWorkoutEntry = false
 
   var body: some View {
     NavigationStack {
@@ -15,8 +16,8 @@ struct HomeView: View {
           Spacer(minLength: 12)
 
           HStack(alignment: .top, spacing: 12) {
-            NavigationLink {
-              WorkoutEntryView()
+            Button {
+              isShowingWorkoutEntry = true
             } label: {
               HomeActionCard(
                 title: isTodayLogged
@@ -66,6 +67,11 @@ struct HomeView: View {
         .padding()
       }
       .navigationTitle("One Set")
+    }
+    .sheet(isPresented: $isShowingWorkoutEntry) {
+      NavigationStack {
+        WorkoutEntryView()
+      }
     }
   }
 

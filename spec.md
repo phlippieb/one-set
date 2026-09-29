@@ -102,11 +102,12 @@ Simple list view; each row shows
 
 Newest first.
 
-Tapping a row navigates to the Add/Edit workout entry view.
+Tapping a row presents the Add/Edit workout entry view modally.
 
 #### Add/Edit workout entry
 
 A form view with two modes: add or edit.
+It is presented modally and can be dismissed without confirming unsaved changes.
 
 UI elements:
 - Date
@@ -138,7 +139,7 @@ UI elements:
   - Rows are ordered by the workout date's focus cycle: focus group first, then Biceps->Triceps->Shoulders->back to start.
   - All rows are editable to reflect what was actually done.
 - Notes -- a free text box for storing notes about this day's workout.
-- In Edit mode: Destructive "Delete" button
+- In Edit mode: Overflow toolbar menu beside Save with a destructive "Delete Workout" action
   - Triggers confirmation, then exits the view. No undo.
 - In Add mode: "Add" button. In Edit mode: "Save" button.
 

@@ -29,7 +29,7 @@
 - [x] Render basic Workout Log rows
 - [x] Group list by cycle, e.g. "Biceps focus (start date - end date)" - similar to the home screen
 - [x] Render remaining data in rows
-- [x] Wire up tapping on row -> navigate to WorkoutEntryView
+- [x] Make each full workout card tappable and present WorkoutEntryView modally
 
 ## Workout detail
 
@@ -39,6 +39,7 @@
 - [x] Add notes box
 - [x] Add delete and save buttons
 - [x] Implement delete and save functionality
+- [x] Move Delete into an overflow menu beside Save in Edit mode
 - [x] Factor out the exercise row into a private view
 - [x] Show each exercise in a separate card
 - [x] Add a Focus badge to the focused exercise card
@@ -47,8 +48,4 @@
 - [x] Show a right-aligned Progress on next workout control for new/latest focused exercise entries and hint text when set to no
 - [x] Show hint text when an exercise is skipped
 - [x] Add consistent row heights and aligned stepper controls for weights and reps
-- [ ] Keep Save visible and disable it when there are no changes to save
-- [ ] Present Workout Detail modally and allow dismissing unsaved changes without confirmation
-- [ ] Support pull-down dismissal
-- [ ] Consider sticky action buttons
-- [ ] Consider replacing Delete with Dismiss in add mode
+- [x] Present Workout Detail modally and allow dismissing unsaved changes without confirmation

@@ -74,19 +74,30 @@ struct WorkoutEntryView: View {
           .accessibilityLabel("Notes")
       }
 
-      if workout != nil {
-        Section {
-          Button("Delete", role: .destructive) {
-            isShowingDeleteConfirmation = true
-          }
-        }
-      }
     }
     .navigationTitle(
-      workout.map { WorkoutDateDisplay.relative($0.dayKey) } ?? "Log Workout"
+      workout.map { WorkoutDateDisplay.relative($0.dayKey) } ?? "Today"
     )
     .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
+      ToolbarItem(placement: .cancellationAction) {
+        Button("Cancel") {
+          dismiss()
+        }
+      }
+      ToolbarItemGroup(placement: .confirmationAction) {
+        if workout != nil {
+          Menu {
+            Button(role: .destructive) {
+              isShowingDeleteConfirmation = true
+            } label: {
+              Label("Delete Workout", systemImage: "trash")
+            }
+          } label: {
+            Image(systemName: "ellipsis")
+          }
+          .accessibilityLabel("More actions")
+        }
+
         Button(workout == nil ? "Add" : "Save", action: saveWorkout)
           .disabled(!didInitializeAddMode || exercises.allSatisfy(\.isSkipped))
       }

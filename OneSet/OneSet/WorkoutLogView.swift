@@ -4,6 +4,7 @@ import SwiftUI
 
 struct WorkoutLogView: View {
   @Query(sort: \Workout.dayKey, order: .reverse) private var workouts: [Workout]
+  @State private var selectedWorkout: Workout?
 
   var body: some View {
     List {
@@ -13,14 +14,19 @@ struct WorkoutLogView: View {
         ForEach(workoutSections) { section in
           Section {
             ForEach(section.workouts) { workout in
-              NavigationLink {
-                WorkoutEntryView(workout: workout)
+              Button {
+                selectedWorkout = workout
               } label: {
                 WorkoutLogRow(workout: workout, history: workoutHistory)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .padding()
+                  .background(
+                    .secondary.opacity(0.1),
+                    in: RoundedRectangle(cornerRadius: 16)
+                  )
+                  .contentShape(RoundedRectangle(cornerRadius: 16))
               }
               .buttonStyle(.plain)
-              .padding()
-              .background(.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 16))
               .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
               .listRowSeparator(.hidden)
               .listRowBackground(Color.clear)
@@ -32,6 +38,11 @@ struct WorkoutLogView: View {
       }
     }
     .navigationTitle("Workout Log")
+    .sheet(item: $selectedWorkout) { workout in
+      NavigationStack {
+        WorkoutEntryView(workout: workout)
+      }
+    }
   }
 
   private var workoutSections: [WorkoutLogSection] {
